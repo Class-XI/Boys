@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess Your Classmate</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, black, #00ffaa, rgb(185, 0, 185));
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .container {
+      max-width: 90%;
+      width: 400px;
+    }
+
+    .box {
+      background: rgba(211, 211, 211, 0.2);
+      /* Semi-transparent light gray */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      /* Shadow effect */
+    }
+
+    .card {
+      background: rgba(211, 211, 211, 0.2);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    button {
+      background: rgba(0, 0, 0, 0.2);
+      border: none;
+      padding: 10px 20px;
+      color: #ffffff;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: purple;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid white;
+      width: 90%;
+      margin: 10px 0;
+    }
+
+    #liveScore {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 500px) {
+
+      .box,
+      .card {
+        padding: 15px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+
+      #liveScore {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="box">
+      <h1>Guess Your Classmate</h1>
+      <input type="text" id="userName" placeholder="Enter Your Name">
+      <button id="startGame">Start Game</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="hidden">
+      <h2 id="welcomeMessage"></h2>
+      <div id="questionCard" class="card">
+        <h3 id="question"></h3>
+        <div id="options"></div>
+        <div id="feedback"></div>
+      </div>
+      <div id="liveScore">Score: 0</div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden box">
+      <h1>Game Over!</h1>
+      <p id="finalScore"></p>
+      <button id="restartGame">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    // Questions Data
+    const questions = [
+      { question: "Who Is Known For His Dialog Ruk Ruk ....", options: ["Ravi", "Ayush", "Bharat", "Dhruv"], answer: "Bharat" },
+      { question: "This Is The One From Whome Everyone Ask Homework", options: ["Raj", "Utkarsh", "Ayush", "Jeet"], answer: "Ayush" },
+      { question: "Who has the loudest laugh in the class?", options: ["Ayush", "Jitu", "Smit", "Deepak"], answer: "Jitu" },
+      { question: "Who Moke Everyone In Class?", options: ["Darshil", "Harshil", "Deepak", "Bharat"], answer: "Deepak" },
+      { question: "Who Always Got Caught While Doing Fun In Class?", options: ["Darshil & Harshil", "Dhruv", "Bharat  & Ravi", "Karan"], answer: "Darshil & Harshil" },
+      { question: "Who is most likely to become a famous artist?", options: ["Jitendra", "Yash", "Utkarsh", "Smit"], answer: "Utkarsh" },
+      { question: "The One Who Study All Time In School?", options: ["Deepak", "Jeet", "Ayush", "Dhruv"], answer: "Jeet" },
+      { question: "Who Is The One Who Has Best Handwritting In Hindi?", options: ["Bhavyaraj", "Raj", "Ravindra", "Sagar"], answer: "Raj" },
+      { question: "Who Get 5g Signal In Class?", options: ["Utkarsh", "Ayush", "Smit", "Ravi"], answer: "Ayush" },
+      { question: "Who Is The First One To Top In C.S?", options: ["Smit", "Karan", "Dhruv", "Smit"], answer: "Dhruv" },
+      { question: "Who Is More Likely To Become Businessman?", options: ["Bharat", "Ravi", "Raj", "Sagar"], answer: "Bharat" },
+      { question: "Who Is the Most Competitive In Shayri Competition?", options: ["Ravi", "Raj", "Utkarsh", "Deepak"], answer: "Ravi" },
+      { question: "From Whose Bottle Everyone Drink Water?", options: ["Jitu", "Utkarsh", "Jeet", "Smit"], answer: "Utkarsh" },
+      { question: "Who Does Not Like To Come In Group Photo?", options: ["Raj", "Bhavyaraj", "Harshil", "Karan"], answer: "Karan" },
+      { question: "Who Was The First Monitor Of Class 11 To Finish 1 Month Of Shift?", options: ["Ravi", "Darshil", "Deepak", "Ayush"], answer: "Deepak" },
+      { question: "Who Is The Longest One After Ravindra?", options: ["Smit", "Yash", "Deepak", "Smit"], answer: "Yash" },
+      { question: "Who IS Most Likely To Top Class?", options: ["Smit", "Jeet", "Ayush", "Deepak"], answer: "Jeet" },
+      { question: "Who Get Sick When He Get Any Assembly Role?", options: ["Smit", "Bhavyaraj", "Ravi", "Sagar"], answer: "Bhavyaraj" },
+      { question: "Who Is Og C.S Topper?(Based On knowledge Not Marks)", options: ["Ayush", "Dhruv", "Smit", "Jitu"], answer: "Smit" }
+    ];
+
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userName = "";
+
+    // Start Game
+    document.getElementById("startGame").addEventListener("click", () => {
+      userName = document.getElementById("userName").value;
+      if (!userName) return alert("Please Enter Your Name!");
+
+      document.getElementById("welcomeMessage").innerText = `Welcome, ${userName}!`;
+      document.getElementById("welcomeScreen").classList.add("hidden");
+      document.getElementById("quizScreen").classList.remove("hidden");
+
+      showQuestion();
+    });
+
+    // Display Question
+    function showQuestion() {
+      const questionData = questions[currentQuestion];
+      document.getElementById("question").innerText = questionData.question;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      document.getElementById("feedback").innerText = ""; // Clear feedback
+
+      questionData.options.forEach(option => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.onclick = () => checkAnswer(option);
+        optionsDiv.appendChild(button);
+      });
+    }
+
+    // Check Answer
+    function checkAnswer(selected) {
+      const questionData = questions[currentQuestion];
+      const feedbackDiv = document.getElementById("feedback");
+
+      if (selected === questionData.answer) {
+        score++;
+        feedbackDiv.innerText = "Correct!👏";
+        feedbackDiv.style.color = "green";
+      } else {
+        feedbackDiv.innerText = `Wrong!💥 Correct answer: ${questionData.answer}`;
+        feedbackDiv.style.color = "red";
+      }
+
+      document.getElementById("liveScore").innerText = `Score: ${score}`;
+      setTimeout(nextQuestion, 2000);
+    }
+
+    // Next Question or End Game
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        endGame();
+      }
+    }
+
+    // End Game
+    function endGame() {
+      document.getElementById("quizScreen").classList.add("hidden");
+      document.getElementById("resultScreen").classList.remove("hidden");
+      document.getElementById("finalScore").innerText = `${userName}, You Scored: ${score}, Out Of 19`;
+    }
+
+    // Restart Game
+    document.getElementById("restartGame").addEventListener("click", () => {
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById("resultScreen").classList.add("hidden");
+      document.getElementById("welcomeScreen").classList.remove("hidden");
+    });
+  </script>
+</body>
+
+</html>
